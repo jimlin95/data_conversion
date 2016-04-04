@@ -3,6 +3,8 @@ from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 import glob
 
+FOLDER_PREFIX_NAME = "EY"
+
 
 def find_between(s, first, last):
     try:
@@ -25,7 +27,9 @@ def find_between_r(s, first, last):
 def excel_create():
     wb = Workbook()
     ws = wb.active
-    return wb, ws
+    # remove the sheet named "Sheet"
+    wb.remove_sheet(ws)
+    return wb
 
 
 def excel_save(wb, filename):
@@ -94,10 +98,11 @@ def excel_create_barchart(ws):
 def find_directoies_with_substring(ey):
     return glob.glob(ey)
 
+
 if __name__ == '__main__':
-    ey_folders = find_directoies_with_substring("EY*/")
-    print ey_folders
-    wb, ws = excel_create()
+
+    ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
+    wb = excel_create()
     for ey in ey_folders:
         ws_sn = excel_creatsheet(wb, ey[:-1])
         roi_mtp_dealwith(ws_sn, ey)
