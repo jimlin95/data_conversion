@@ -1,0 +1,74 @@
+Fri Apr  1 12:49:27 2016	v6.5
+Target Serial Number is:	KanoTestChartCalin-index1
+Image input file name = 	/home/emmalin/Code/kano_tool/kano/factory/images/EY3008_greylv.pgm
+Data input file name = 		/home/emmalin/Code/kano_tool/kano/factory/images/../exe/EY3008-h-mtf.txt
+
+Input coordinates of target image:
+Upper Left Col =		0	Upper Left Row =	0
+Upper Right Col =		3999	Upper Right Row =	0
+Lower Left Col =		0	Lower Left Row =	2999
+
+Hdr, Cols, Rows of input image = 17, 4000, 3000
+MTF direction = 	Horizontal 	Target Orientation 	0 deg
+Scanner resolution (pixels per inch):	HORZ = 16383.001	VERT = 16381.634
+Target Skew Angle:  HORZ = 0.000  VERT = 0.000   |avg.skew| = 0.000 degrees
+
+
+POSSIBLE IMAGE POLARITY PROBLEM:
+  Expected polarity is black bars and white spaces, but program is 
+  reading opposite on snippet of lowest frequency bar pattern, i.e.
+  bar gray = 163 and space gray = 24.
+  Not a problem if this bar pattern's location in TgtDataFile starts
+  with white space adjacent to leftmost bar, instead of leftmost bar.
+  Otherwise,if 8bpp, reverse image polarity (Menu option f).
+            if 16bpp, image may be signed integer, which program cant handle.
+
+Tgt Freq.   Effective     Target       peak CTF
+cy/mm       Freq.         Mod
+77.265      77.265        0.950          0.386 
+57.433      57.433        0.932          0.745 
+56.759      56.759        0.932          0.704 
+74.585      74.585        0.950          0.229 
+52.066      52.066        0.932          0.834 
+56.428      56.428        0.943          0.794 
+56.759      56.759        0.940          0.795 
+75.679      75.679        0.946          0.319 
+73.523      73.523        0.951          0.400 
+
+         End of Report for /home/emmalin/Code/kano_tool/kano/factory/images/EY3008_greylv.pgm
+********************************************************************************
+
+
+
+Fri Apr  1 12:49:27 2016	v6.5
+Target Serial Number is:	KanoTestChartCalin-index1
+Image input file name = 	/home/emmalin/Code/kano_tool/kano/factory/images/EY3008_greylv.pgm
+Data input file name = 		/home/emmalin/Code/kano_tool/kano/factory/images/../exe/EY3008-v-mtf.txt
+
+Input coordinates of target image:
+Upper Left Col =		0	Upper Left Row =	0
+Upper Right Col =		3999	Upper Right Row =	0
+Lower Left Col =		0	Lower Left Row =	2999
+
+Hdr, Cols, Rows of input image = 17, 4000, 3000
+MTF direction = 	Vertical 	Target Orientation 	-90 deg
+Scanner resolution (pixels per inch):	HORZ = 16383.001	VERT = 16381.634
+Target Skew Angle:  HORZ = 0.000  VERT = 0.000   |avg.skew| = 0.000 degrees
+
+
+Tgt Freq.   Effective     Target       peak CTF
+cy/mm       Freq.         Mod
+71.486      71.486        0.949          0.273 
+70.703      70.703        0.942          0.236 
+57.263      57.263        0.942          0.764 
+56.759      56.759        0.940          0.820 
+51.523      51.523        0.932          0.837 
+56.926      56.926        0.939          0.726 
+56.593      56.593        0.931          0.732 
+71.486      71.486        0.944          0.540 
+70.317      70.317        0.943          0.336 
+
+         End of Report for /home/emmalin/Code/kano_tool/kano/factory/images/EY3008_greylv.pgm
+********************************************************************************
+
+
