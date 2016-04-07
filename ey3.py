@@ -36,6 +36,94 @@ def excel_save(wb, filename):
     wb.save(filename)
 
 
+def set_allborder(ws, cell_range):
+    rows = list(ws.iter_rows(cell_range))
+    side = openpyxl.styles.Side(border_style='thin', color="FF000000")
+    for pos_y, cells in enumerate(rows):
+        for pos_x, cell in enumerate(cells):
+            border = openpyxl.styles.Border(
+                left=cell.border.left,
+                right=cell.border.right,
+                top=cell.border.top,
+                bottom=cell.border.bottom
+            )
+            border.left = side
+            border.right = side
+            border.top = side
+            border.bottom = side
+            cell.border = border
+
+
+def set_border(ws, cell_range):
+    rows = list(ws.iter_rows(cell_range))
+    side = openpyxl.styles.Side(border_style='thin', color="FF000000")
+    max_y = len(rows) - 1  # index of the last row
+    for pos_y, cells in enumerate(rows):
+        max_x = len(cells) - 1  # index of the last cell
+        for pos_x, cell in enumerate(cells):
+            border = openpyxl.styles.Border(
+                left=cell.border.left,
+                right=cell.border.right,
+                top=cell.border.top,
+                bottom=cell.border.bottom
+            )
+            if pos_x == 0:
+                border.left = side
+            if pos_x == max_x:
+                border.right = side
+            if pos_y == 0:
+                border.top = side
+            if pos_y == max_y:
+                border.bottom = side
+            # set new border only if it's one of the edge cells
+            if pos_x == 0 or pos_x == max_x or pos_y == 0 or pos_y == max_y:
+                cell.border = border
+
+
+def set_font(ws, cell_range):
+    rows = list(ws.iter_rows(cell_range))
+    font = openpyxl.styles.Font(name='Calibri',
+                                size=11, bold=False,
+                                italic=False,
+                                vertAlign=None,
+                                underline='none',
+                                strike=False,
+                                color='FFFFFFFF')
+
+    for pos_y, cells in enumerate(rows):
+        for pos_x, cell in enumerate(cells):
+            cell.font = font
+
+
+def set_alignment(ws, cell_range):
+    rows = list(ws.iter_rows(cell_range))
+    align_center = openpyxl.styles.Alignment(horizontal='center')
+    for pos_y, cells in enumerate(rows):
+        for pos_x, cell in enumerate(cells):
+            cell.alignment = align_center
+
+
+def set_background_color(ws, cell_range, color_string):
+    rows = list(ws.iter_rows(cell_range))
+    backgroundcolor = openpyxl.styles.PatternFill(
+        fill_type="solid",
+        start_color='FF' + color_string,
+        end_color='FF' + color_string)
+    for pos_y, cells in enumerate(rows):
+        for pos_x, cell in enumerate(cells):
+            cell.fill = backgroundcolor
+
+
+def mtp_cell_format(ws):
+    set_allborder(ws, "A1:B19")
+    set_font(ws, "A1:B1")
+    set_alignment(ws, "A1:B19")
+    color_string = '8b8989'  # color hex string
+    set_background_color(ws, "A1:B1", color_string)
+    color_string = 'cdc9c9'  # light gray
+    set_background_color(ws, "A2:B19", color_string)
+
+
 def roi_mtp_dealwith(ws, folder):
     ws['A1'] = "MTF"
     ws['B1'] = "Value"
@@ -57,6 +145,16 @@ def roi_mtp_dealwith(ws, folder):
             ws[roi_location] = index
             mtf_location = 'B' + str(int(index)+2)
             ws[mtf_location] = (float(mtf))
+
+
+def sfr_cell_format(ws):
+    color_string = 'cdb79e'  # light gray
+    set_font(ws, "D1:E1")
+    set_allborder(ws, "D1:E37")
+    set_alignment(ws, "D1:E37")
+    set_background_color(ws, "D1:E1", color_string)
+    color_string = 'ffdab9'  # light gray
+    set_background_color(ws, "D2:E37", color_string)
 
 
 def sfr_dealwith(ws, folder):
@@ -133,7 +231,9 @@ if __name__ == '__main__':
     wb = excel_create()
     for ey in ey_folders:
         ws_sn = excel_creatsheet(wb, ey[:-1])
+        mtp_cell_format(ws_sn)
         roi_mtp_dealwith(ws_sn, ey)
+        sfr_cell_format(ws_sn)
         sfr_dealwith(ws_sn, ey)
         excel_mtf_barchart(ws_sn)
         excel_sfr_barchart(ws_sn)
