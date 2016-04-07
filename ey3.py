@@ -1,5 +1,10 @@
+#!/usr/bin/env python
+# coding=UTF-8
 #
-import openpyxl
+from openpyxl import Workbook
+from openpyxl.styles import Side, Font, PatternFill, Border, Alignment
+from openpyxl.chart import Reference, BarChart
+# import openpyxl
 import glob
 
 FOLDER_PREFIX_NAME = "EY"
@@ -24,7 +29,7 @@ def find_between_r(s, first, last):
 
 
 def excel_create():
-    wb = openpyxl.Workbook()
+    wb = Workbook()
     ws = wb.active
     # remove the sheet named "Sheet"
     wb.remove_sheet(ws)
@@ -38,10 +43,10 @@ def excel_save(wb, filename):
 
 def set_allborder(ws, cell_range):
     rows = list(ws.iter_rows(cell_range))
-    side = openpyxl.styles.Side(border_style='thin', color="FF000000")
+    side = Side(border_style='thin', color="FF000000")
     for pos_y, cells in enumerate(rows):
         for pos_x, cell in enumerate(cells):
-            border = openpyxl.styles.Border(
+            border = Border(
                 left=cell.border.left,
                 right=cell.border.right,
                 top=cell.border.top,
@@ -56,12 +61,12 @@ def set_allborder(ws, cell_range):
 
 def set_border(ws, cell_range):
     rows = list(ws.iter_rows(cell_range))
-    side = openpyxl.styles.Side(border_style='thin', color="FF000000")
+    side = Side(border_style='thin', color="FF000000")
     max_y = len(rows) - 1  # index of the last row
     for pos_y, cells in enumerate(rows):
         max_x = len(cells) - 1  # index of the last cell
         for pos_x, cell in enumerate(cells):
-            border = openpyxl.styles.Border(
+            border = Border(
                 left=cell.border.left,
                 right=cell.border.right,
                 top=cell.border.top,
@@ -82,13 +87,9 @@ def set_border(ws, cell_range):
 
 def set_font(ws, cell_range):
     rows = list(ws.iter_rows(cell_range))
-    font = openpyxl.styles.Font(name='Calibri',
-                                size=11, bold=False,
-                                italic=False,
-                                vertAlign=None,
-                                underline='none',
-                                strike=False,
-                                color='FFFFFFFF')
+    font = Font(name='Calibri', size=11, bold=False, italic=False,
+                vertAlign=None, underline='none', strike=False,
+                color='FFFFFFFF')
 
     for pos_y, cells in enumerate(rows):
         for pos_x, cell in enumerate(cells):
@@ -97,7 +98,7 @@ def set_font(ws, cell_range):
 
 def set_alignment(ws, cell_range):
     rows = list(ws.iter_rows(cell_range))
-    align_center = openpyxl.styles.Alignment(horizontal='center')
+    align_center = Alignment(horizontal='center')
     for pos_y, cells in enumerate(rows):
         for pos_x, cell in enumerate(cells):
             cell.alignment = align_center
@@ -105,7 +106,7 @@ def set_alignment(ws, cell_range):
 
 def set_background_color(ws, cell_range, color_string):
     rows = list(ws.iter_rows(cell_range))
-    backgroundcolor = openpyxl.styles.PatternFill(
+    backgroundcolor = PatternFill(
         fill_type="solid",
         start_color='FF' + color_string,
         end_color='FF' + color_string)
@@ -178,17 +179,16 @@ def excel_creatsheet(wb, ws_title):
 
 
 def excel_mtf_barchart(ws):
-    chart1 = openpyxl.chart.BarChart()
+    chart1 = BarChart()
     chart1.type = "col"
     chart1.style = 10
     chart1.title = "MTF Chart"
     chart1.y_axis.title = 'MTF'
     chart1.x_axis.title = 'ROI'
 # Select all data include title
-    data = openpyxl.chart.Reference(ws, min_col=2, min_row=1,
-                                    max_row=19, max_col=2)
+    data = Reference(ws, min_col=2, min_row=1, max_row=19, max_col=2)
 # Select data only
-    cats = openpyxl.chart.Reference(ws, min_col=1, min_row=2, max_row=18)
+    cats = Reference(ws, min_col=1, min_row=2, max_row=18)
     chart1.add_data(data, titles_from_data=True)
     chart1.set_categories(cats)
     chart1.shape = 4
@@ -200,17 +200,16 @@ def excel_mtf_barchart(ws):
 
 
 def excel_sfr_barchart(ws):
-    chart1 = openpyxl.chart.BarChart()
+    chart1 = BarChart()
     chart1.type = "col"
-    chart1.style = 10
+    chart1.style = 12
     chart1.title = "SFR Chart"
     chart1.y_axis.title = 'SFR'
     chart1.x_axis.title = 'ROI'
 # Select all data include title
-    data = openpyxl.chart.Reference(ws, min_col=5, min_row=1,
-                                    max_row=37, max_col=5)
+    data = Reference(ws, min_col=5, min_row=1, max_row=37, max_col=5)
 # Select data only
-    cats = openpyxl.chart.Reference(ws, min_col=4, min_row=2, max_row=37)
+    cats = Reference(ws, min_col=4, min_row=2, max_row=37)
     chart1.add_data(data, titles_from_data=True)
     chart1.set_categories(cats)
     chart1.shape = 4
