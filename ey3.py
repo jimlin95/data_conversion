@@ -8,6 +8,9 @@ from openpyxl.chart import Reference, BarChart, LineChart
 import glob
 
 FOLDER_PREFIX_NAME = "EY"
+SHEET_SFR = "SFR"
+SHEET_SFR_2 = "SFR-2"
+SHEET_CTF = "CTF"
 
 
 def find_between(s, first, last):
@@ -125,27 +128,33 @@ def mtp_cell_format(ws):
     set_background_color(ws, "A2:B19", color_string)
 
 
-def roi_mtp_dealwith(ws, folder):
+def roi_mtp_dealwith(ws):
     ws['A1'] = "MTF"
-    ws['B1'] = "Value"
-    filefullpath = folder + "mtf/" + folder[0:6] + "-H-MTFOUT.txt"
-    with open(filefullpath, "r") as f:
-        for line in f:
-            roi, mtf = line.split('=')
-            index = find_between(roi, "ROI_", "_MTF")
-            roi_location = 'A' + str(int(index)+2)
-            ws[roi_location] = index
-            mtf_location = 'B' + str(int(index)+2)
-            ws[mtf_location] = (float(mtf))
-    filefullpath = folder + "mtf/" + folder[0:6] + "-V-MTFOUT.txt"
-    with open(filefullpath, "r") as f:
-        for line in f:
-            roi, mtf = line.split('=')
-            index = find_between(roi, "ROI_", "_MTF")
-            roi_location = 'A' + str(int(index)+2)
-            ws[roi_location] = index
-            mtf_location = 'B' + str(int(index)+2)
-            ws[mtf_location] = (float(mtf))
+    ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
+#    print(ey_folders)
+    for folder in ey_folders:
+        ws['B1'] = folder[:-1]
+        filefullpath = folder + "mtf/" + folder[0:6] + "-H-MTFOUT.txt"
+        with open(filefullpath, "r") as f:
+            for line in f:
+                roi, mtf = line.split('=')
+                index = find_between(roi, "ROI_", "_MTF")
+                roi_location = 'A' + str(int(index)+2)
+                ws[roi_location] = roi
+                mtf_location = 'B' + str(int(index)+2)
+                ws[mtf_location] = (float(mtf))
+        filefullpath = folder + "mtf/" + folder[0:6] + "-V-MTFOUT.txt"
+        with open(filefullpath, "r") as f:
+            for line in f:
+                roi, mtf = line.split('=')
+                index = find_between(roi, "ROI_", "_MTF")
+                roi_location = 'A' + str(int(index)+2)
+                ws[roi_location] = roi
+                mtf_location = 'B' + str(int(index)+2)
+                ws[mtf_location] = (float(mtf))
+        for i in range(5, 37, 4):
+            ul = 'C' + str(i)
+            ws[ul] = "UL-0.5"
 
 
 def sfr_cell_format(ws):
@@ -158,19 +167,29 @@ def sfr_cell_format(ws):
     set_background_color(ws, "D2:E37", color_string)
 
 
-def sfr_dealwith(ws, folder):
+def sfr_dealwith(ws):
 
-    ws['D1'] = "SFR"
-    ws['E1'] = "Value"
-    filefullpath = folder + "/sfr/" + "SFROUT_shopfloor.txt"
-    with open(filefullpath, "r") as f:
-        for line in f:
-            roi, sfr = line.split('=')
-            index = find_between(roi, "ROI", "_SFR_RESULT")
-            roi_location = 'D' + str(int(index)+2)
-            ws[roi_location] = index
-            mtf_location = 'E' + str(int(index)+2)
-            ws[mtf_location] = float(sfr)
+    AREA_TAG = ("UL-0.5", "UR-0.5", "UL-0.3", "UR-0.3", "Center",
+                "LL-0.3", "LR-0.3", "LL-0.5", "LR-0.5")
+    ws['{0}'.format('A')+'1'] = ""
+    ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
+    for folder in ey_folders:
+        ws['B1'] = folder[:-1]
+        filefullpath = folder + "/sfr/" + "SFROUT_shopfloor.txt"
+        with open(filefullpath, "r") as f:
+            for line in f:
+                roi, sfr = line.split('=')
+                index = find_between(roi, "ROI", "_SFR_RESULT")
+                roi_location = 'A' + str(int(index)+2)
+                ws[roi_location] = roi
+                mtf_location = 'B' + str(int(index)+2)
+                ws[mtf_location] = float(sfr)
+
+                for index, i in enumerate(range(5, 38, 4)):
+                    ul = 'C' + str(i)
+                    ws[ul] = AREA_TAG[index]
+                    uavg = 'D' + str(i)
+                    ws[uavg] = "=SUM(B{0}:B{1})/4".format(i-3, i)
 
 
 def excel_creatsheet(wb, ws_title):
@@ -241,16 +260,27 @@ def mtp_linechart(ws):
     ws.add_chart(chart1, "A10")
 
 
+def create_working_sheets(wb):
+    SHEETS_LIST = (SHEET_SFR, SHEET_SFR_2, SHEET_CTF)
+    worksheets = []
+    for sheet in SHEETS_LIST:
+        worksheets.append(excel_creatsheet(wb, sheet))
+    # print(worksheets)
+
+
 def find_directoies_with_substring(ey):
     return glob.glob(ey)
 
 
 if __name__ == '__main__':
-
     ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
     wb = excel_create()
+    create_working_sheets(wb)
+    active_sheet = wb[SHEET_SFR]
+    sfr_dealwith(active_sheet)
+    #  roi_mtp_dealwith(active_sheet)
+    """
     for ey in ey_folders:
-        ws_sn = excel_creatsheet(wb, ey[:-1])
         mtp_cell_format(ws_sn)
         roi_mtp_dealwith(ws_sn, ey)
         mtp_linechart(ws_sn)
@@ -258,4 +288,5 @@ if __name__ == '__main__':
         sfr_dealwith(ws_sn, ey)
         excel_mtf_barchart(ws_sn)
         excel_sfr_barchart(ws_sn)
+    """
     excel_save(wb, "ey3.xlsx")
