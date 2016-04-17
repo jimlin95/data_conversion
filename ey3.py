@@ -3,7 +3,7 @@
 #
 from openpyxl import Workbook
 from openpyxl.styles import Side, Font, PatternFill, Border, Alignment
-from openpyxl.chart import Reference, BarChart
+from openpyxl.chart import Reference, BarChart, LineChart
 # import openpyxl
 import glob
 
@@ -220,6 +220,27 @@ def excel_sfr_barchart(ws):
     ws.add_chart(chart1, "G21")
 
 
+def mtp_linechart(ws):
+    chart1 = LineChart()
+    chart1.title = "Line Chart"
+    chart1.style = 9
+    chart1.y_axis.title = 'Size'
+    chart1.x_axis.title = 'Test Number'
+# Select all data include title
+    data = Reference(ws, min_col=2, min_row=1, max_row=19, max_col=2)
+# Select data only
+    cats = Reference(ws, min_col=1, min_row=2, max_row=18)
+    chart1.add_data(data, titles_from_data=True)
+    chart1.set_categories(cats)
+    # Style the lines
+    s1 = chart1.series[0]
+    s1.marker.symbol = "triangle"
+    s1.marker.graphicalProperties.solidFill = "FF0000"  # Marker filling
+    s1.marker.graphicalProperties.line.solidFill = "FF0000"  # Marker outline
+    s1.graphicalProperties.line.noFill = False
+    ws.add_chart(chart1, "A10")
+
+
 def find_directoies_with_substring(ey):
     return glob.glob(ey)
 
@@ -232,6 +253,7 @@ if __name__ == '__main__':
         ws_sn = excel_creatsheet(wb, ey[:-1])
         mtp_cell_format(ws_sn)
         roi_mtp_dealwith(ws_sn, ey)
+        mtp_linechart(ws_sn)
         sfr_cell_format(ws_sn)
         sfr_dealwith(ws_sn, ey)
         excel_mtf_barchart(ws_sn)
