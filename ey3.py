@@ -2,7 +2,15 @@
 # coding=UTF-8
 #
 from openpyxl import Workbook
-from openpyxl.styles import Side, Font, PatternFill, Border, Alignment
+from openpyxl.styles import (
+    Side,
+    Font,
+    PatternFill,
+    Border,
+    Alignment,
+    fills,
+    colors
+    )
 from openpyxl.chart import Reference, BarChart, LineChart
 # import openpyxl
 import glob
@@ -11,6 +19,10 @@ FOLDER_PREFIX_NAME = "EY"
 SHEET_SFR = "SFR"
 SHEET_SFR_2 = "SFR-2"
 SHEET_CTF = "CTF"
+AREA_TAG = ("UL-0.5", "UR-0.5", "UL-0.3", "UR-0.3", "Center",
+            "LL-0.3", "LR-0.3", "LL-0.5", "LR-0.5")
+SFR2_TAG = ("0.5f", "0.3f", "0", "0.3f", "0.5f")
+EY_FOLDERS = []
 
 
 def find_between(s, first, last):
@@ -99,9 +111,9 @@ def set_font(ws, cell_range):
             cell.font = font
 
 
-def set_alignment(ws, cell_range):
+def set_alignment(ws, cell_range, position='center'):
     rows = list(ws.iter_rows(cell_range))
-    align_center = Alignment(horizontal='center')
+    align_center = Alignment(horizontal=position)
     for pos_y, cells in enumerate(rows):
         for pos_x, cell in enumerate(cells):
             cell.alignment = align_center
@@ -167,29 +179,46 @@ def sfr_cell_format(ws):
     set_background_color(ws, "D2:E37", color_string)
 
 
-def sfr_dealwith(ws):
+def sfr_dealwith(ws, eyfile_index):
+    adjust_index = 3 * (eyfile_index-1) + 2
+    ws.cell(column=adjust_index, row=1, value=EY_FOLDERS[eyfile_index-1])
+    ws.cell(column=adjust_index+2, row=1, value=EY_FOLDERS[eyfile_index-1])
+    filefullpath = EY_FOLDERS[eyfile_index-1] + "/sfr/" + "SFROUT_shopfloor.txt"
+    with open(filefullpath, "r") as f:
+        for line in f:
+            roi, sfr = line.split('=')
+            index = find_between(roi, "ROI", "_SFR_RESULT")
+            ws.cell(column=1, row=int(index)+2, value=roi)
+            ws.cell(column=adjust_index, row=int(index)+2, value=float(sfr))
+            for ul_index, i in enumerate(range(5, 38, 4)):
+                ws.cell(column=3*eyfile_index, row=i,
+                        value=AREA_TAG[ul_index])
+                # write SUM(4 values)/4 in UL/UR/LL/LR cell
+                pos = chr(ord('B') + (eyfile_index-1)*3)
+                ws.cell(column=3*eyfile_index+1, row=i,
+                        value="=SUM({0}{1}:{2}{3})/4".format(pos, i-3, pos, i))
+                # paint in blue and green
+                color_string = 'C6D9F1'  # blue color hex string
+                datarow = chr(ord('C') + 3 * (eyfile_index-1))
+                set_background_color(ws, "{0}2:{0}9".format(datarow),
+                                     color_string)
+                set_background_color(ws, "{0}30:{0}37".format(datarow),
+                                     color_string)
+                color_string = 'C3D69B'  # green color
+                set_background_color(ws, "{0}10:{0}17".format(datarow),
+                                     color_string)
+                set_background_color(ws, "{0}22:{0}29".format(datarow),
+                                     color_string)
 
-    AREA_TAG = ("UL-0.5", "UR-0.5", "UL-0.3", "UR-0.3", "Center",
-                "LL-0.3", "LR-0.3", "LL-0.5", "LR-0.5")
+
+def sfr_handle(ws):
+    "Deal with all SFR files"
+    global EY_FOLDERS
     ws['{0}'.format('A')+'1'] = ""
-    ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
-    for folder in ey_folders:
-        ws['B1'] = folder[:-1]
-        filefullpath = folder + "/sfr/" + "SFROUT_shopfloor.txt"
-        with open(filefullpath, "r") as f:
-            for line in f:
-                roi, sfr = line.split('=')
-                index = find_between(roi, "ROI", "_SFR_RESULT")
-                roi_location = 'A' + str(int(index)+2)
-                ws[roi_location] = roi
-                mtf_location = 'B' + str(int(index)+2)
-                ws[mtf_location] = float(sfr)
-
-                for index, i in enumerate(range(5, 38, 4)):
-                    ul = 'C' + str(i)
-                    ws[ul] = AREA_TAG[index]
-                    uavg = 'D' + str(i)
-                    ws[uavg] = "=SUM(B{0}:B{1})/4".format(i-3, i)
+    set_alignment(ws, "A1:AZ1")
+    EY_FOLDERS = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*")
+    for index, folder in enumerate(EY_FOLDERS, 1):
+        sfr_dealwith(ws, index)
 
 
 def excel_creatsheet(wb, ws_title):
@@ -272,12 +301,72 @@ def find_directoies_with_substring(ey):
     return glob.glob(ey)
 
 
+def sfr_sheet_initiate(ws):
+    "A function to initiate SFR sheet"
+    # paste "ROI0_SFR_RESULT" to A2:A37
+    for index, row_index in enumerate(range(2, 38)):
+        ws.cell(column=1, row=row_index,
+                value="ROI{0}_SFR_RESULT".format(index))
+        ws.column_dimensions['A'].width = 18
+
+
+def sfr2_sheet_initiate(ws):
+    "A function to initiate SFR-2 sheet"
+    for index, i in enumerate(range(2, 11)):
+        # format column B2:B10
+        ws.cell(column=2, row=i).style.fill.fill_type = fills.FILL_SOLID
+        ws.cell(column=2, row=i).style.fill.start_color = colors.DARKRED
+        ws.cell(column=2, row=i).value = AREA_TAG[index]
+    for index, i in enumerate(range(13, 22)):
+        ul = 'C' + str(i)
+        ws[ul] = AREA_TAG[index]
+    for f_index, f in enumerate(range(6, 11)):
+        ws.cell(column=f, row=13, value=SFR2_TAG[f_index])
+    for f_index, f in enumerate(range(14, 19)):
+        ws.cell(column=5, row=f, value=SFR2_TAG[f_index])
+    ws['F14'] = "=D13"
+    ws['J14'] = "=D14"
+    ws['G15'] = "=D15"
+    ws['I15'] = "=D16"
+    ws['H16'] = "=D17"
+    ws['G17'] = "=D18"
+    ws['I17'] = "=D19"
+    ws['F18'] = "=D20"
+    ws['J18'] = "=D21"
+    set_alignment(ws, "E13:J18")
+    set_allborder(ws, "E13:J18")
+    color_string = 'C6D9F1'  # blue color hex string
+    set_background_color(ws, "B2:B3", color_string)
+    set_background_color(ws, "B9:B10", color_string)
+    set_background_color(ws, "C13:C14", color_string)
+    set_background_color(ws, "C20:C21", color_string)
+    color_string = 'C3D69B'  # green color
+    set_background_color(ws, "B4:B5", color_string)
+    set_background_color(ws, "B7:B8", color_string)
+    set_background_color(ws, "C15:C16", color_string)
+    set_background_color(ws, "C18:C19", color_string)
+
+    color_string = 'DBEEF4'  # light blue color hex string
+    set_background_color(ws, "F14:F18", color_string)
+    set_background_color(ws, "G14:I14", color_string)
+    set_background_color(ws, "G18:I18", color_string)
+    set_background_color(ws, "J14:J18", color_string)
+
+    color_string = 'C3D69B'  # light green color hex string
+    set_background_color(ws, "G15:I17", color_string)
+    color_string = 'D99694'  # light red color hex string
+    set_background_color(ws, "H16:H16", color_string)
+    set_background_color(ws, "C17:C17", color_string)
+
+
 if __name__ == '__main__':
-    ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
     wb = excel_create()
     create_working_sheets(wb)
     active_sheet = wb[SHEET_SFR]
-    sfr_dealwith(active_sheet)
+    sfr_sheet_initiate(active_sheet)
+    active_sheet = wb[SHEET_SFR_2]
+    sfr2_sheet_initiate(active_sheet)
+    sfr_handle(wb[SHEET_SFR])
     #  roi_mtp_dealwith(active_sheet)
     """
     for ey in ey_folders:
