@@ -130,16 +130,6 @@ def set_background_color(ws, cell_range, color_string):
             cell.fill = backgroundcolor
 
 
-def mtp_cell_format(ws):
-    set_allborder(ws, "A1:B19")
-    set_font(ws, "A1:B1")
-    set_alignment(ws, "A1:B19")
-    color_string = '8b8989'  # color hex string
-    set_background_color(ws, "A1:B1", color_string)
-    color_string = 'cdc9c9'  # light gray
-    set_background_color(ws, "A2:B19", color_string)
-
-
 def roi_mtp_dealwith(ws):
     ws['A1'] = "MTF"
     ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
@@ -169,21 +159,11 @@ def roi_mtp_dealwith(ws):
             ws[ul] = "UL-0.5"
 
 
-def sfr_cell_format(ws):
-    color_string = 'cdb79e'  # light gray
-    set_font(ws, "D1:E1")
-    set_allborder(ws, "D1:E37")
-    set_alignment(ws, "D1:E37")
-    set_background_color(ws, "D1:E1", color_string)
-    color_string = 'ffdab9'  # light gray
-    set_background_color(ws, "D2:E37", color_string)
-
-
 def sfr_dealwith(ws, eyfile_index):
-    adjust_index = 3 * (eyfile_index-1) + 2
-    ws.cell(column=adjust_index, row=1, value=EY_FOLDERS[eyfile_index-1])
-    ws.cell(column=adjust_index+2, row=1, value=EY_FOLDERS[eyfile_index-1])
-    filefullpath = EY_FOLDERS[eyfile_index-1] + "/sfr/" + "SFROUT_shopfloor.txt"
+    adjust_index = 3 * (eyfile_index) + 2
+    ws.cell(column=adjust_index, row=1, value=EY_FOLDERS[eyfile_index])
+    ws.cell(column=adjust_index+2, row=1, value=EY_FOLDERS[eyfile_index])
+    filefullpath = EY_FOLDERS[eyfile_index] + "/sfr/" + "SFROUT_shopfloor.txt"
     with open(filefullpath, "r") as f:
         for line in f:
             roi, sfr = line.split('=')
@@ -191,15 +171,15 @@ def sfr_dealwith(ws, eyfile_index):
             ws.cell(column=1, row=int(index)+2, value=roi)
             ws.cell(column=adjust_index, row=int(index)+2, value=float(sfr))
             for ul_index, i in enumerate(range(5, 38, 4)):
-                ws.cell(column=3*eyfile_index, row=i,
+                ws.cell(column=3*(eyfile_index+1), row=i,
                         value=AREA_TAG[ul_index])
                 # write SUM(4 values)/4 in UL/UR/LL/LR cell
-                pos = chr(ord('B') + (eyfile_index-1)*3)
-                ws.cell(column=3*eyfile_index+1, row=i,
+                pos = chr(ord('B') + eyfile_index*3)
+                ws.cell(column=(3*(eyfile_index+1))+1, row=i,
                         value="=SUM({0}{1}:{2}{3})/4".format(pos, i-3, pos, i))
                 # paint in blue and green
                 color_string = 'C6D9F1'  # blue color hex string
-                datarow = chr(ord('C') + 3 * (eyfile_index-1))
+                datarow = chr(ord('C') + 3 * (eyfile_index))
                 set_background_color(ws, "{0}2:{0}9".format(datarow),
                                      color_string)
                 set_background_color(ws, "{0}30:{0}37".format(datarow),
@@ -211,14 +191,35 @@ def sfr_dealwith(ws, eyfile_index):
                                      color_string)
 
 
+def sfr_linechart(ws, data_index):
+    chart1 = LineChart()
+    chart1.title = "Line Chart"
+    chart1.style = 2
+    chart1.y_axis.title = ''
+    chart1.x_axis.title = ''
+
+    for idx, i in enumerate(range(2, 3*data_index, 3)):
+        # Select all data include title
+        data = Reference(ws, min_col=i, min_row=1, max_row=37, max_col=i)
+        chart1.add_data(data, titles_from_data=True)
+        s1 = chart1.series[idx]
+        s1.marker.symbol = "triangle"
+        s1.marker.graphicalProperties.solidFill = "FF0000"  # Marker filling
+        # Marker outline
+        s1.marker.graphicalProperties.line.solidFill = "FF0000"
+        s1.graphicalProperties.line.noFill = False
+    ws.add_chart(chart1, "H5")
+
+
 def sfr_handle(ws):
     "Deal with all SFR files"
     global EY_FOLDERS
     ws['{0}'.format('A')+'1'] = ""
     set_alignment(ws, "A1:AZ1")
     EY_FOLDERS = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*")
-    for index, folder in enumerate(EY_FOLDERS, 1):
+    for index, folder in enumerate(EY_FOLDERS):
         sfr_dealwith(ws, index)
+    sfr_linechart(ws, len(EY_FOLDERS))
 
 
 def excel_creatsheet(wb, ws_title):
@@ -362,20 +363,7 @@ def sfr2_sheet_initiate(ws):
 if __name__ == '__main__':
     wb = excel_create()
     create_working_sheets(wb)
-    active_sheet = wb[SHEET_SFR]
-    sfr_sheet_initiate(active_sheet)
-    active_sheet = wb[SHEET_SFR_2]
-    sfr2_sheet_initiate(active_sheet)
+    sfr_sheet_initiate(wb[SHEET_SFR])
+    sfr2_sheet_initiate(wb[SHEET_SFR_2])
     sfr_handle(wb[SHEET_SFR])
-    #  roi_mtp_dealwith(active_sheet)
-    """
-    for ey in ey_folders:
-        mtp_cell_format(ws_sn)
-        roi_mtp_dealwith(ws_sn, ey)
-        mtp_linechart(ws_sn)
-        sfr_cell_format(ws_sn)
-        sfr_dealwith(ws_sn, ey)
-        excel_mtf_barchart(ws_sn)
-        excel_sfr_barchart(ws_sn)
-    """
     excel_save(wb, "ey3.xlsx")
