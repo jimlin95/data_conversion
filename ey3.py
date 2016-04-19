@@ -3,13 +3,13 @@
 #
 from openpyxl import Workbook
 from openpyxl.styles import (
-    Side,
-    Font,
-    PatternFill,
-    Border,
-    Alignment,
-    fills,
-    colors
+        Side,
+        Font,
+        PatternFill,
+        Border,
+        Alignment,
+        fills,
+        colors
     )
 from openpyxl.chart import Reference, BarChart, LineChart
 # import openpyxl
@@ -23,6 +23,7 @@ AREA_TAG = ("UL-0.5", "UR-0.5", "UL-0.3", "UR-0.3", "Center",
             "LL-0.3", "LR-0.3", "LL-0.5", "LR-0.5")
 SFR2_TAG = ("0.5f", "0.3f", "0", "0.3f", "0.5f")
 EY_FOLDERS = []
+EY_FOLDERS_NUM = 0
 
 
 def find_between(s, first, last):
@@ -191,14 +192,14 @@ def sfr_dealwith(ws, eyfile_index):
                                      color_string)
 
 
-def sfr_linechart(ws, data_index):
+def sfr_linechart(ws):
     chart1 = LineChart()
     chart1.title = "Line Chart"
     chart1.style = 2
     chart1.y_axis.title = ''
     chart1.x_axis.title = ''
 
-    for idx, i in enumerate(range(2, 3*data_index, 3)):
+    for idx, i in enumerate(range(2, 3*EY_FOLDERS_NUM, 3)):
         # Select all data include title
         data = Reference(ws, min_col=i, min_row=1, max_row=37, max_col=i)
         chart1.add_data(data, titles_from_data=True)
@@ -214,17 +215,36 @@ def sfr_linechart(ws, data_index):
 def sfr_handle(ws):
     "Deal with all SFR files"
     global EY_FOLDERS
+    global EY_FOLDERS_NUM
     ws['{0}'.format('A')+'1'] = ""
     set_alignment(ws, "A1:AZ1")
     EY_FOLDERS = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*")
     for index, folder in enumerate(EY_FOLDERS):
         sfr_dealwith(ws, index)
-    sfr_linechart(ws, len(EY_FOLDERS))
+    EY_FOLDERS_NUM = len(EY_FOLDERS)
+    sfr_linechart(ws)
 
 
-def excel_creatsheet(wb, ws_title):
-    ws = wb.create_sheet(title=ws_title)
-    return ws
+def copy_sfr_to_sfr2(wb):
+    "Copy UL datas to SFR2 sheet from SFR sheet"
+    SFR_ws = wb[SHEET_SFR]
+    SFR2_ws = wb[SHEET_SFR_2]
+    # Currently , we calculate average here, need to find how to read real value
+    # by openpyxl
+    for idx in range(EY_FOLDERS_NUM):  # 0, 1, 2, ..
+        all_avg_value = []
+        for y_idx in range(2, 38, 4):  # 2, 6, 10, 14, 18, 22, 26, 30, 34
+            sum_4value = 0
+            for sum_idx in range(4):
+                sum_pos = "{0}{1}".format(chr(ord('B') + idx*3), y_idx+sum_idx)
+                sum_4value += float("{0:.7f}".format(SFR_ws[sum_pos].value))
+            all_avg_value.append("{0:.7f}".format(sum_4value/4))
+        sfr_title_pos = "{0}{1}".format(chr(ord('B') + idx*3), 1)
+        sfr2_title_pos = "{0}{1}".format(chr(ord('C') + idx), 1)
+        SFR2_ws[sfr2_title_pos] = SFR_ws[sfr_title_pos].value
+        for avg_idx, sfr2_idx in enumerate(range(2, 11)):
+            pos = "{0}{1}".format(chr(ord('C') + idx), sfr2_idx)
+            SFR2_ws[pos] = all_avg_value[avg_idx]
 
 
 def excel_mtf_barchart(ws):
@@ -288,6 +308,11 @@ def mtp_linechart(ws):
     s1.marker.graphicalProperties.line.solidFill = "FF0000"  # Marker outline
     s1.graphicalProperties.line.noFill = False
     ws.add_chart(chart1, "A10")
+
+
+def excel_creatsheet(wb, ws_title):
+    ws = wb.create_sheet(title=ws_title)
+    return ws
 
 
 def create_working_sheets(wb):
@@ -366,4 +391,5 @@ if __name__ == '__main__':
     sfr_sheet_initiate(wb[SHEET_SFR])
     sfr2_sheet_initiate(wb[SHEET_SFR_2])
     sfr_handle(wb[SHEET_SFR])
+    copy_sfr_to_sfr2(wb)
     excel_save(wb, "ey3.xlsx")
