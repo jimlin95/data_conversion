@@ -11,11 +11,12 @@ from openpyxl.styles import (
         fills,
         colors
     )
-from openpyxl.chart import Reference, BarChart, LineChart
+from openpyxl.chart import Reference, LineChart
 # import openpyxl
 import glob
 
 FOLDER_PREFIX_NAME = "EY"
+FILENAME = "ey3.xlsx"
 SHEET_SFR = "SFR"
 SHEET_SFR_2 = "SFR-2"
 SHEET_CTF = "CTF"
@@ -24,6 +25,69 @@ AREA_TAG = ("UL-0.5", "UR-0.5", "UL-0.3", "UR-0.3", "Center",
 SFR2_TAG = ("0.5f", "0.3f", "0", "0.3f", "0.5f")
 EY_FOLDERS = []
 EY_FOLDERS_NUM = 0
+CTF_INITIATE_TABLE = (
+        ("cy/mm", "ROI"),
+        (77.265, "ROI_0_MTF"),
+        (57.433, "ROI_1_MTF"),
+        (56.759, "ROI_2_MTF"),
+        (74.585, "ROI_3_MTF"),
+        (52.066, "ROI_9_MTF"),
+        (56.428, "ROI_13_MTF"),
+        (56.759, "ROI_14_MTF"),
+        (75.679, "ROI_16_MTF"),
+        (73.523, "ROI_17_MTF"),
+        (71.486, "ROI_4_MTF"),
+        (70.703, "ROI_5_MTF"),
+        (57.263, "ROI_6_MTF"),
+        (56.759, "ROI_7_MTF"),
+        (51.523, "ROI_8_MTF"),
+        (56.926, "ROI_10_MTF"),
+        (56.593, "ROI_11_MTF"),
+        (71.486, "ROI_12_MTF"),
+        (70.317, "ROI_15_MTF"),
+    )
+
+TGT_FREQ = (
+        (77.265),
+        (57.433),
+        (56.759),
+        (74.585),
+        (52.066),
+        (56.428),
+        (56.759),
+        (75.679),
+        (73.523),
+        (71.486),
+        (70.703),
+        (57.263),
+        (56.759),
+        (51.523),
+        (56.926),
+        (56.593),
+        (71.486),
+        (70.317)
+)
+
+ROI_table = (
+    "ROI_0_MTF",
+    "ROI_1_MTF",
+    "ROI_2_MTF",
+    "ROI_3_MTF",
+    "ROI_9_MTF",
+    "ROI_13_MTF",
+    "ROI_14_MTF",
+    "ROI_16_MTF",
+    "ROI_17_MTF",
+    "ROI_4_MTF",
+    "ROI_5_MTF",
+    "ROI_6_MTF",
+    "ROI_7_MTF",
+    "ROI_8_MTF",
+    "ROI_10_MTF",
+    "ROI_11_MTF",
+    "ROI_12_MTF",
+    "ROI_15_MTF"
+)
 
 
 def find_between(s, first, last):
@@ -131,35 +195,6 @@ def set_background_color(ws, cell_range, color_string):
             cell.fill = backgroundcolor
 
 
-def roi_mtp_dealwith(ws):
-    ws['A1'] = "MTF"
-    ey_folders = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
-#    print(ey_folders)
-    for folder in ey_folders:
-        ws['B1'] = folder[:-1]
-        filefullpath = folder + "mtf/" + folder[0:6] + "-H-MTFOUT.txt"
-        with open(filefullpath, "r") as f:
-            for line in f:
-                roi, mtf = line.split('=')
-                index = find_between(roi, "ROI_", "_MTF")
-                roi_location = 'A' + str(int(index)+2)
-                ws[roi_location] = roi
-                mtf_location = 'B' + str(int(index)+2)
-                ws[mtf_location] = (float(mtf))
-        filefullpath = folder + "mtf/" + folder[0:6] + "-V-MTFOUT.txt"
-        with open(filefullpath, "r") as f:
-            for line in f:
-                roi, mtf = line.split('=')
-                index = find_between(roi, "ROI_", "_MTF")
-                roi_location = 'A' + str(int(index)+2)
-                ws[roi_location] = roi
-                mtf_location = 'B' + str(int(index)+2)
-                ws[mtf_location] = (float(mtf))
-        for i in range(5, 37, 4):
-            ul = 'C' + str(i)
-            ws[ul] = "UL-0.5"
-
-
 def sfr_dealwith(ws, eyfile_index):
     adjust_index = 3 * (eyfile_index) + 2
     ws.cell(column=adjust_index, row=1, value=EY_FOLDERS[eyfile_index])
@@ -225,17 +260,39 @@ def sfr_handle(ws):
     sfr_linechart(ws)
 
 
+def sfr2_linechart(ws):
+    chart1 = LineChart()
+    chart1.title = "Line Chart"
+    chart1.style = 2
+    chart1.y_axis.title = ''
+    chart1.x_axis.title = ''
+
+    for idx in range(EY_FOLDERS_NUM):
+        # Select all data include title
+        data = Reference(ws, min_col=3+idx, min_row=1, max_row=10,
+                         max_col=3+idx)
+        chart1.add_data(data, titles_from_data=True)
+        s1 = chart1.series[idx]
+        s1.marker.symbol = "triangle"
+        s1.marker.graphicalProperties.solidFill = "FF0000"  # Marker filling
+        # Marker outline
+        s1.marker.graphicalProperties.line.solidFill = "FF0000"
+        s1.graphicalProperties.line.noFill = False
+    ws.add_chart(chart1, "B22")
+
+
 def copy_sfr_to_sfr2(wb):
     "Copy UL datas to SFR2 sheet from SFR sheet"
     SFR_ws = wb[SHEET_SFR]
     SFR2_ws = wb[SHEET_SFR_2]
+    set_alignment(SFR2_ws, "A1:AZ1")
     # Currently , we calculate average here, need to find how to read real value
     # by openpyxl
     for idx in range(EY_FOLDERS_NUM):  # 0, 1, 2, ..
         all_avg_value = []
         for y_idx in range(2, 38, 4):  # 2, 6, 10, 14, 18, 22, 26, 30, 34
             sum_4value = 0
-            for sum_idx in range(4):
+            for sum_idx in range(4):  # 0, 1, 2, 3
                 sum_pos = "{0}{1}".format(chr(ord('B') + idx*3), y_idx+sum_idx)
                 sum_4value += float("{0:.7f}".format(SFR_ws[sum_pos].value))
             all_avg_value.append("{0:.7f}".format(sum_4value/4))
@@ -244,70 +301,7 @@ def copy_sfr_to_sfr2(wb):
         SFR2_ws[sfr2_title_pos] = SFR_ws[sfr_title_pos].value
         for avg_idx, sfr2_idx in enumerate(range(2, 11)):
             pos = "{0}{1}".format(chr(ord('C') + idx), sfr2_idx)
-            SFR2_ws[pos] = all_avg_value[avg_idx]
-
-
-def excel_mtf_barchart(ws):
-    chart1 = BarChart()
-    chart1.type = "col"
-    chart1.style = 10
-    chart1.title = "MTF Chart"
-    chart1.y_axis.title = 'MTF'
-    chart1.x_axis.title = 'ROI'
-# Select all data include title
-    data = Reference(ws, min_col=2, min_row=1, max_row=19, max_col=2)
-# Select data only
-    cats = Reference(ws, min_col=1, min_row=2, max_row=18)
-    chart1.add_data(data, titles_from_data=True)
-    chart1.set_categories(cats)
-    chart1.shape = 4
-    chart1.x_axis.scaling.min = 0
-    chart1.x_axis.scaling.max = 18
-    chart1.y_axis.scaling.min = 0
-    chart1.y_axis.scaling.max = 1
-    ws.add_chart(chart1, "G1")
-
-
-def excel_sfr_barchart(ws):
-    chart1 = BarChart()
-    chart1.type = "col"
-    chart1.style = 12
-    chart1.title = "SFR Chart"
-    chart1.y_axis.title = 'SFR'
-    chart1.x_axis.title = 'ROI'
-# Select all data include title
-    data = Reference(ws, min_col=5, min_row=1, max_row=37, max_col=5)
-# Select data only
-    cats = Reference(ws, min_col=4, min_row=2, max_row=37)
-    chart1.add_data(data, titles_from_data=True)
-    chart1.set_categories(cats)
-    chart1.shape = 4
-    chart1.x_axis.scaling.min = 0
-    chart1.x_axis.scaling.max = 37
-    chart1.y_axis.scaling.min = 0
-    chart1.y_axis.scaling.max = 1
-    ws.add_chart(chart1, "G21")
-
-
-def mtp_linechart(ws):
-    chart1 = LineChart()
-    chart1.title = "Line Chart"
-    chart1.style = 9
-    chart1.y_axis.title = 'Size'
-    chart1.x_axis.title = 'Test Number'
-# Select all data include title
-    data = Reference(ws, min_col=2, min_row=1, max_row=19, max_col=2)
-# Select data only
-    cats = Reference(ws, min_col=1, min_row=2, max_row=18)
-    chart1.add_data(data, titles_from_data=True)
-    chart1.set_categories(cats)
-    # Style the lines
-    s1 = chart1.series[0]
-    s1.marker.symbol = "triangle"
-    s1.marker.graphicalProperties.solidFill = "FF0000"  # Marker filling
-    s1.marker.graphicalProperties.line.solidFill = "FF0000"  # Marker outline
-    s1.graphicalProperties.line.noFill = False
-    ws.add_chart(chart1, "A10")
+            SFR2_ws[pos] = float(all_avg_value[avg_idx])
 
 
 def excel_creatsheet(wb, ws_title):
@@ -385,11 +379,106 @@ def sfr2_sheet_initiate(ws):
     set_background_color(ws, "C17:C17", color_string)
 
 
+def ctf_sheet_initiate(ws):
+    "Initiate CTF sheet"
+    for row in CTF_INITIATE_TABLE:
+        ws.append(row)
+    for idx, roi in enumerate(ROI_table):
+        if idx <= 8:
+            ws["B{}".format(23+idx)] = roi
+        else:
+            ws["E{}".format(23+idx-9)] = roi
+    for idx, tgt in enumerate(TGT_FREQ):
+        if idx <= 8:
+            ws["C{}".format(23+idx)] = tgt
+        else:
+            ws["F{}".format(23+idx-9)] = tgt
+    # yello FFFF00
+    set_background_color(ws, "A2:Z2", 'FFFF00')
+    set_background_color(ws, "A5:Z5", 'FFFF00')
+    set_background_color(ws, "A9:Z12", 'FFFF00')
+    set_background_color(ws, "A18:Z19", 'FFFF00')
+    set_background_color(ws, "B23:B23", 'FFFF00')
+    set_background_color(ws, "B26:B26", 'FFFF00')
+    set_background_color(ws, "B30:B31", 'FFFF00')
+    set_background_color(ws, "E23:E24", 'FFFF00')
+    set_background_color(ws, "E30:E31", 'FFFF00')
+    # blue B7DEE8
+    set_background_color(ws, "C23:C31", 'B7DEE8')
+    set_background_color(ws, "F23:F31", 'B7DEE8')
+    # red D99694
+    set_background_color(ws, "D23:D31", 'D99694')
+    set_background_color(ws, "G23:G31", 'D99694')
+    ws['C21'] = "Tgt Freq."
+    ws['F21'] = "Tgt Freq."
+    ws['B22'] = "ROI"
+    ws['E22'] = "ROI"
+    ws['D22'] = "MTF"
+    ws['G22'] = "MTF"
+    ws['F22'] = "cy/mm"
+    ws['C22'] = "cy/mm"
+    set_allborder(ws, "B21:G31")
+
+
+def ctf_dealwith(ws):
+    for idx in range(EY_FOLDERS_NUM):
+        ws.cell(column=3+idx, row=1, value=EY_FOLDERS[idx])
+        filefullpath = EY_FOLDERS[idx] + "/mtf/" + EY_FOLDERS[idx] \
+            + "-H-MTFOUT.txt"
+        with open(filefullpath, "r") as f:
+            for line in f:
+                roi, mtf = line.split('=')
+                row_idx = ROI_table.index(roi) + 2
+                ws.cell(column=3+idx, row=row_idx, value=float(mtf))
+        filefullpath = EY_FOLDERS[idx] + "/mtf/" + EY_FOLDERS[idx] \
+            + "-V-MTFOUT.txt"
+        with open(filefullpath, "r") as f:
+            for line in f:
+                roi, mtf = line.split('=')
+                row_idx = ROI_table.index(roi) + 2
+                ws.cell(column=3+idx, row=row_idx, value=float(mtf))
+
+
+def ctf_linechart(ws):
+    chart1 = LineChart()
+    chart1.title = "Line Chart"
+    chart1.style = 2
+    chart1.y_axis.title = ''
+    chart1.x_axis.title = ''
+
+    for idx in range(EY_FOLDERS_NUM):
+        # Select all data include title
+        data = Reference(ws, min_col=3+idx, min_row=1, max_row=19,
+                         max_col=3+idx)
+        chart1.add_data(data, titles_from_data=True)
+        s1 = chart1.series[idx]
+        s1.marker.symbol = "triangle"
+        s1.marker.graphicalProperties.solidFill = "FF0000"  # Marker filling
+        # Marker outline
+        s1.marker.graphicalProperties.line.solidFill = "FF0000"
+        s1.graphicalProperties.line.noFill = False
+    ws.add_chart(chart1, "H5")
+
+
 if __name__ == '__main__':
     wb = excel_create()
     create_working_sheets(wb)
-    sfr_sheet_initiate(wb[SHEET_SFR])
-    sfr2_sheet_initiate(wb[SHEET_SFR_2])
-    sfr_handle(wb[SHEET_SFR])
+    active_ws = wb[SHEET_SFR]
+    sfr_sheet_initiate(active_ws)
+
+    active_ws = wb[SHEET_SFR_2]
+    sfr2_sheet_initiate(active_ws)
+
+    active_ws = wb[SHEET_SFR]
+    sfr_handle(active_ws)
+
     copy_sfr_to_sfr2(wb)
-    excel_save(wb, "ey3.xlsx")
+
+    active_ws = wb[SHEET_SFR_2]
+    sfr2_linechart(active_ws)
+
+    active_ws = wb[SHEET_CTF]
+    ctf_sheet_initiate(active_ws)
+    ctf_dealwith(active_ws)
+    ctf_linechart(active_ws)
+    excel_save(wb, FILENAME)
