@@ -24,10 +24,13 @@ VERSION = (0, 2)
 # Maintainer <jim_lin@quantatw.com>
 
 
-FOLDER_PREFIX_NAME = "EY3_"
+FOLDER_PREFIX_NAME = "*EY3_"
 
 FILENAME = "ey3_factory.xlsx"
-
+MTF_PATH = ""
+SFR_PATH = ""
+TP1_PATH = ""
+TP2_PATH = ""
 ROW_OFFSET = 1
 MTF_START_POS1 = 2
 MTF_1_LEN = 9
@@ -65,8 +68,8 @@ def find_directoies_with_substring(ey):
 
 
 def mtf_dealwith(ws, ey_folder, ey_folder_idx):
-    ws.cell(column=1, row=ey_folder_idx + ROW_OFFSET, value=ey_folder)
-    filefullpath = ey_folder + "/mtf/" + ey_folder + "-H-MTFOUT.txt"
+    ws.cell(column=1, row=ey_folder_idx + ROW_OFFSET, value=ey_folder[:-1])
+    filefullpath = ey_folder + MTF_PATH + ey_folder[:-1] + "-H-MTFOUT.txt"
     with open(filefullpath, "r") as f:
         for mtf_idx, line in enumerate(f, MTF_START_POS1):
             roi, mtf = line.split('=')
@@ -74,7 +77,7 @@ def mtf_dealwith(ws, ey_folder, ey_folder_idx):
                 ws.cell(column=mtf_idx, row=1, value=roi)
             ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
                     value=float(mtf))
-    filefullpath = ey_folder + "/mtf/" + ey_folder + "-V-MTFOUT.txt"
+    filefullpath = ey_folder + MTF_PATH + ey_folder[:-1] + "-V-MTFOUT.txt"
     with open(filefullpath, "r") as f:
         for mtf_idx, line in enumerate(f, MTF_START_POS2):
             roi, mtf = line.split('=')
@@ -85,7 +88,7 @@ def mtf_dealwith(ws, ey_folder, ey_folder_idx):
 
 
 def sfr_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = ey_folder + "/sfr/" + "SFROUT_shopfloor.txt"
+    filefullpath = ey_folder + SFR_PATH + "SFROUT_shopfloor.txt"
     with open(filefullpath, "r") as f:
         for sfr_idx, line in enumerate(f, SFR_START_POS):
             roi, sfr = line.split('=')
@@ -96,7 +99,7 @@ def sfr_dealwith(ws, ey_folder, ey_folder_idx):
 
 
 def tp1_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = ey_folder + "/tp1/" + "tp1-black-out.txt"
+    filefullpath = ey_folder + TP1_PATH + "tp1-black-out.txt"
     with open(filefullpath, "r") as f:
         for tp1_idx, line in enumerate(f, TP1_START_POS1):
             roi, black = line.split('=')
@@ -104,7 +107,7 @@ def tp1_dealwith(ws, ey_folder, ey_folder_idx):
                 ws.cell(column=tp1_idx, row=1, value=roi)
             ws.cell(column=tp1_idx, row=ey_folder_idx + ROW_OFFSET,
                     value=float(black))
-    filefullpath = ey_folder + "/tp1/" + "tp1-white-out.txt"
+    filefullpath = ey_folder + TP1_PATH + "tp1-white-out.txt"
     with open(filefullpath, "r") as f:
         for tp1_idx, line in enumerate(f, TP1_START_POS2):
             roi, white = line.split('=')
@@ -115,7 +118,7 @@ def tp1_dealwith(ws, ey_folder, ey_folder_idx):
 
 
 def tp2_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = ey_folder + "/tp2/" + "chart-out.txt"
+    filefullpath = ey_folder + TP2_PATH + "chart-out.txt"
     with open(filefullpath, "r") as f:
         for tp2_idx, line in enumerate(f, TP2_START_POS):
             roi, tp2 = line.split('=')
@@ -126,7 +129,7 @@ def tp2_dealwith(ws, ey_folder, ey_folder_idx):
 
 
 def color_fidelity_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = ey_folder + "/" + "color_fidelity.txt"
+    filefullpath = ey_folder + "color_fidelity.txt"
     with open(filefullpath, "r") as f:
         for cfd_idx, line in enumerate(f, COLOR_FIDELITY_START_POS):
             roi, cfd = line.split('=')
@@ -139,7 +142,7 @@ def color_fidelity_dealwith(ws, ey_folder, ey_folder_idx):
 if __name__ == '__main__':
     wb = excel_create()
     ws = wb.active
-    EY_FOLDERS = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*")
+    EY_FOLDERS = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
     for ey_folder_idx, ey_folder in enumerate(EY_FOLDERS, 1):
         mtf_dealwith(ws, ey_folder, ey_folder_idx)
         sfr_dealwith(ws, ey_folder, ey_folder_idx)
