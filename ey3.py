@@ -15,7 +15,7 @@ from openpyxl.chart import Reference, LineChart
 # import openpyxl
 import glob
 
-FOLDER_PREFIX_NAME = "EY"
+FOLDER_PREFIX_NAME = "*EY"
 FILENAME = "ey3.xlsx"
 SHEET_SFR = "SFR"
 SHEET_SFR_2 = "SFR-2"
@@ -253,7 +253,10 @@ def sfr_handle(ws):
     global EY_FOLDERS_NUM
     ws['{0}'.format('A')+'1'] = ""
     set_alignment(ws, "A1:AZ1")
-    EY_FOLDERS = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*")
+    EY_FOLDERS_TEMP = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
+    for ey_folder in EY_FOLDERS_TEMP:
+        EY_FOLDERS.append(ey_folder[:-1])
+    # print(EY_FOLDERS)
     for index, folder in enumerate(EY_FOLDERS):
         sfr_dealwith(ws, index)
     EY_FOLDERS_NUM = len(EY_FOLDERS)
