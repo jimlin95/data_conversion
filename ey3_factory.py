@@ -69,58 +69,73 @@ def find_directoies_with_substring(ey):
 def mtf_dealwith(ws, ey_folder, ey_folder_idx):
     filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
                     "-chart-0-/mtf-H-MTFOUT.txt")
-    with open(filefullpath, "r") as f:
-        for mtf_idx, line in enumerate(f, MTF_START_POS1):
-            roi, mtf = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=mtf_idx, row=1, value=roi)
-            ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(mtf))
+    try:
+        with open(filefullpath, "r") as f:
+            for mtf_idx, line in enumerate(f, MTF_START_POS1):
+                roi, mtf = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=mtf_idx, row=1, value=roi)
+                ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(mtf))
+    except IOError:
+        pass
     filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
                     "-chart-0-/mtf-V-MTFOUT.txt")
-    with open(filefullpath, "r") as f:
-        for mtf_idx, line in enumerate(f, MTF_START_POS2):
-            roi, mtf = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=mtf_idx, row=1, value=roi)
-            ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(mtf))
+    try:
+        with open(filefullpath, "r") as f:
+            for mtf_idx, line in enumerate(f, MTF_START_POS2):
+                roi, mtf = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=mtf_idx, row=1, value=roi)
+                ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(mtf))
+    except IOError:
+        pass
 
 
 def sfr_dealwith(ws, ey_folder, ey_folder_idx):
     filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
                     "-chart-0-/SFROUT_shopfloor.txt")
-    with open(filefullpath, "r") as f:
-        for sfr_idx, line in enumerate(f, SFR_START_POS):
-            roi, sfr = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=sfr_idx, row=1, value=roi)
-            ws.cell(column=sfr_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(sfr))
+    try:
+        with open(filefullpath, "r") as f:
+            for sfr_idx, line in enumerate(f, SFR_START_POS):
+                roi, sfr = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=sfr_idx, row=1, value=roi)
+                ws.cell(column=sfr_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(sfr))
+    except IOError:
+        pass
 
 
 def chart_out_dealwith(ws, ey_folder, ey_folder_idx):
     filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
                     "-chart-0-/chart-out.txt")
-    with open(filefullpath, "r") as f:
-        for co_idx, line in enumerate(f, CHART_OUT_POS):
-            roi, co = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=co_idx, row=1, value=roi)
-            ws.cell(column=co_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(co))
+    try:
+        with open(filefullpath, "r") as f:
+            for co_idx, line in enumerate(f, CHART_OUT_POS):
+                roi, co = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=co_idx, row=1, value=roi)
+                ws.cell(column=co_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(co))
+    except IOError:
+        pass
 
 
 def color_fidelity_dealwith(ws, ey_folder, ey_folder_idx):
     filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
                     "-chart-0-/color_fidelity.txt")
-    with open(filefullpath, "r") as f:
-        for cfd_idx, line in enumerate(f, COLOR_FIDELITY_START_POS):
-            roi, cfd = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=cfd_idx, row=1, value=roi)
-            ws.cell(column=cfd_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(cfd))
+    try:
+        with open(filefullpath, "r") as f:
+            for cfd_idx, line in enumerate(f, COLOR_FIDELITY_START_POS):
+                roi, cfd = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=cfd_idx, row=1, value=roi)
+                ws.cell(column=cfd_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(cfd))
+    except IOError:
+        pass
 
 
 def black_0_dealwith(ws, ey_folder, ey_folder_idx):
@@ -128,39 +143,48 @@ def black_0_dealwith(ws, ey_folder, ey_folder_idx):
     ws.cell(column=1, row=ey_folder_idx + ROW_OFFSET, value=ey_folder)
     filefullpath = (CAMERA_STATION_1 + "/" + ey_folder +
                     "-black-0-/tp1-black-out.txt")
-    with open(filefullpath, "r") as f:
-        for black_idx, line in enumerate(f, BLACK_START_POS):
-            roi, black = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=black_idx, row=1, value=roi)
-            ws.cell(column=black_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(black))
+    try:
+        with open(filefullpath, "r") as f:
+            for black_idx, line in enumerate(f, BLACK_START_POS):
+                roi, black = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=black_idx, row=1, value=roi)
+                ws.cell(column=black_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(black))
+    except IOError:
+        pass
 
 
 def diffuser_1_5000_dealwith(ws, ey_folder, ey_folder_idx):
 
     filefullpath = (CAMERA_STATION_1 + "/" + ey_folder +
                     "-diffuser-1-5000/tp1-white-out.txt")
-    with open(filefullpath, "r") as f:
-        for du1_idx, line in enumerate(f, DIFFUSER_1_5000_POS):
-            roi, du1 = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=du1_idx, row=1, value=roi)
-            ws.cell(column=du1_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(du1))
+    try:
+        with open(filefullpath, "r") as f:
+            for du1_idx, line in enumerate(f, DIFFUSER_1_5000_POS):
+                roi, du1 = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=du1_idx, row=1, value=roi)
+                ws.cell(column=du1_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(du1))
+    except IOError:
+        pass
 
 
 def diffuser_2_3000_dealwith(ws, ey_folder, ey_folder_idx):
 
     filefullpath = (CAMERA_STATION_1 + "/" + ey_folder +
                     "-diffuser-2-3000/tp1-white-out.txt")
-    with open(filefullpath, "r") as f:
-        for du2_idx, line in enumerate(f, DIFFUSER_2_3000_POS):
-            roi, du2 = line.split('=')
-            if ey_folder_idx == 1:
-                ws.cell(column=du2_idx, row=1, value=roi)
-            ws.cell(column=du2_idx, row=ey_folder_idx + ROW_OFFSET,
-                    value=float(du2))
+    try:
+        with open(filefullpath, "r") as f:
+            for du2_idx, line in enumerate(f, DIFFUSER_2_3000_POS):
+                roi, du2 = line.split('=')
+                if ey_folder_idx == 1:
+                    ws.cell(column=du2_idx, row=1, value=roi)
+                ws.cell(column=du2_idx, row=ey_folder_idx + ROW_OFFSET,
+                        value=float(du2))
+    except IOError:
+        pass
 
 
 if __name__ == '__main__':
