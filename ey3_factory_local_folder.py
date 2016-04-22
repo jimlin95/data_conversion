@@ -55,7 +55,7 @@ def mtf_dealwith(ws, ey_folder, ey_folder_idx):
                     ws.cell(column=mtf_idx, row=1, value=roi)
                 ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
                         value=float(mtf))
-    except FileNotFoundError:
+    except IOError:
         pass
     filefullpath = ey_folder + "/mtf/" + ey_folder + "-V-MTFOUT.txt"
     try:
@@ -66,7 +66,7 @@ def mtf_dealwith(ws, ey_folder, ey_folder_idx):
                     ws.cell(column=mtf_idx, row=1, value=roi)
                 ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
                         value=float(mtf))
-    except FileNotFoundError:
+    except IOError:
         pass
 
 
@@ -80,7 +80,7 @@ def sfr_dealwith(ws, ey_folder, ey_folder_idx):
                     ws.cell(column=sfr_idx, row=1, value=roi)
                 ws.cell(column=sfr_idx, row=ey_folder_idx + ROW_OFFSET,
                         value=float(sfr))
-    except FileNotFoundError:
+    except IOError:
         pass
 
 
@@ -94,7 +94,7 @@ def tp1_dealwith(ws, ey_folder, ey_folder_idx):
                     ws.cell(column=tp1_idx, row=1, value=roi)
                 ws.cell(column=tp1_idx, row=ey_folder_idx + ROW_OFFSET,
                         value=float(black))
-    except FileNotFoundError:
+    except IOError:
         pass
     try:
         filefullpath = ey_folder + "/tp1/" + "tp1-white-out.txt"
@@ -105,7 +105,7 @@ def tp1_dealwith(ws, ey_folder, ey_folder_idx):
                     ws.cell(column=tp1_idx, row=1, value=roi)
                 ws.cell(column=tp1_idx, row=ey_folder_idx + ROW_OFFSET,
                         value=float(white))
-    except FileNotFoundError:
+    except IOError:
         pass
 
 
@@ -119,7 +119,7 @@ def tp2_dealwith(ws, ey_folder, ey_folder_idx):
                     ws.cell(column=tp2_idx, row=1, value=roi)
                 ws.cell(column=tp2_idx, row=ey_folder_idx + ROW_OFFSET,
                         value=float(tp2))
-    except FileNotFoundError:
+    except IOError:
         pass
 
 
@@ -133,7 +133,7 @@ def color_fidelity_dealwith(ws, ey_folder, ey_folder_idx):
                     ws.cell(column=cfd_idx, row=1, value=roi)
                 ws.cell(column=cfd_idx, row=ey_folder_idx + ROW_OFFSET,
                         value=float(cfd))
-    except FileNotFoundError:
+    except IOError:
         pass
 
 
