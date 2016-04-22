@@ -29,7 +29,7 @@ import glob
 # limitations under the License.
 
 # increment this whenever we make important changes to this script
-VERSION = (0, 1)
+VERSION = (0, 2)
 
 
 # Maintainer <jim_lin@quantatw.com>
