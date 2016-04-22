@@ -67,8 +67,8 @@ def find_directoies_with_substring(ey):
 
 
 def mtf_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = CAMERA_STATION_2 + "/" + ey_folder + \
-        "-chart-0-/mtf-H-MTFOUT.txt"
+    filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
+                    "-chart-0-/mtf-H-MTFOUT.txt")
     with open(filefullpath, "r") as f:
         for mtf_idx, line in enumerate(f, MTF_START_POS1):
             roi, mtf = line.split('=')
@@ -76,8 +76,8 @@ def mtf_dealwith(ws, ey_folder, ey_folder_idx):
                 ws.cell(column=mtf_idx, row=1, value=roi)
             ws.cell(column=mtf_idx, row=ey_folder_idx + ROW_OFFSET,
                     value=float(mtf))
-    filefullpath = CAMERA_STATION_2 + "/" + ey_folder + \
-        "-chart-0-/mtf-V-MTFOUT.txt"
+    filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
+                    "-chart-0-/mtf-V-MTFOUT.txt")
     with open(filefullpath, "r") as f:
         for mtf_idx, line in enumerate(f, MTF_START_POS2):
             roi, mtf = line.split('=')
@@ -88,8 +88,8 @@ def mtf_dealwith(ws, ey_folder, ey_folder_idx):
 
 
 def sfr_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = CAMERA_STATION_2 + "/" + ey_folder + \
-        "-chart-0-/SFROUT_shopfloor.txt"
+    filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
+                    "-chart-0-/SFROUT_shopfloor.txt")
     with open(filefullpath, "r") as f:
         for sfr_idx, line in enumerate(f, SFR_START_POS):
             roi, sfr = line.split('=')
@@ -100,8 +100,8 @@ def sfr_dealwith(ws, ey_folder, ey_folder_idx):
 
 
 def chart_out_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = CAMERA_STATION_2 + "/" + ey_folder + \
-        "-chart-0-/chart-out.txt"
+    filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
+                    "-chart-0-/chart-out.txt")
     with open(filefullpath, "r") as f:
         for co_idx, line in enumerate(f, CHART_OUT_POS):
             roi, co = line.split('=')
@@ -112,8 +112,8 @@ def chart_out_dealwith(ws, ey_folder, ey_folder_idx):
 
 
 def color_fidelity_dealwith(ws, ey_folder, ey_folder_idx):
-    filefullpath = CAMERA_STATION_2 + "/" + ey_folder + \
-        "-chart-0-/color_fidelity.txt"
+    filefullpath = (CAMERA_STATION_2 + "/" + ey_folder +
+                    "-chart-0-/color_fidelity.txt")
     with open(filefullpath, "r") as f:
         for cfd_idx, line in enumerate(f, COLOR_FIDELITY_START_POS):
             roi, cfd = line.split('=')
@@ -126,8 +126,8 @@ def color_fidelity_dealwith(ws, ey_folder, ey_folder_idx):
 def black_0_dealwith(ws, ey_folder, ey_folder_idx):
 
     ws.cell(column=1, row=ey_folder_idx + ROW_OFFSET, value=ey_folder)
-    filefullpath = CAMERA_STATION_1 + "/" + ey_folder + \
-        "-black-0-/tp1-black-out.txt"
+    filefullpath = (CAMERA_STATION_1 + "/" + ey_folder +
+                    "-black-0-/tp1-black-out.txt")
     with open(filefullpath, "r") as f:
         for black_idx, line in enumerate(f, BLACK_START_POS):
             roi, black = line.split('=')
@@ -139,8 +139,8 @@ def black_0_dealwith(ws, ey_folder, ey_folder_idx):
 
 def diffuser_1_5000_dealwith(ws, ey_folder, ey_folder_idx):
 
-    filefullpath = CAMERA_STATION_1 + "/" + ey_folder + \
-        "-diffuser-1-5000/tp1-white-out.txt"
+    filefullpath = (CAMERA_STATION_1 + "/" + ey_folder +
+                    "-diffuser-1-5000/tp1-white-out.txt")
     with open(filefullpath, "r") as f:
         for du1_idx, line in enumerate(f, DIFFUSER_1_5000_POS):
             roi, du1 = line.split('=')
@@ -152,8 +152,8 @@ def diffuser_1_5000_dealwith(ws, ey_folder, ey_folder_idx):
 
 def diffuser_2_3000_dealwith(ws, ey_folder, ey_folder_idx):
 
-    filefullpath = CAMERA_STATION_1 + "/" + ey_folder + \
-        "-diffuser-2-3000/tp1-white-out.txt"
+    filefullpath = (CAMERA_STATION_1 + "/" + ey_folder +
+                    "-diffuser-2-3000/tp1-white-out.txt")
     with open(filefullpath, "r") as f:
         for du2_idx, line in enumerate(f, DIFFUSER_2_3000_POS):
             roi, du2 = line.split('=')
@@ -168,6 +168,7 @@ if __name__ == '__main__':
     wb = excel_create()
     ws = wb.active
     for ey_folder in find_directoies_with_substring(MATCH_PATTEN):
+        # Append SN, skip "Camera1/" string , and get 12 digits SN only
         EY_FOLDERS.append(ey_folder[8:20])
         # print(EY_FOLDERS)
     for ey_folder_idx, ey_folder in enumerate(EY_FOLDERS, 1):
