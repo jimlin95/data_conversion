@@ -18,7 +18,7 @@ import glob
 FOLDER_PREFIX_NAME = "*EY"
 FILENAME = "ey3.xlsx"
 SHEET_SFR = "SFR"
-SHEET_SFR_2 = "SFR-2"
+SHEET_SFR_2 = "SFR_2"
 SHEET_CTF = "CTF"
 AREA_TAG = ("UL-0.5", "UR-0.5", "UL-0.3", "UR-0.3", "Center",
             "LL-0.3", "LR-0.3", "LL-0.5", "LR-0.5")
@@ -251,7 +251,6 @@ def sfr_handle(ws):
     "Deal with all SFR files"
     global EY_FOLDERS
     global EY_FOLDERS_NUM
-    ws['{0}'.format('A')+'1'] = ""
     set_alignment(ws, "A1:AZ1")
     EY_FOLDERS_TEMP = find_directoies_with_substring(FOLDER_PREFIX_NAME + "*/")
     for ey_folder in EY_FOLDERS_TEMP:
@@ -476,7 +475,6 @@ if __name__ == '__main__':
     sfr_handle(active_ws)
 
     copy_sfr_to_sfr2(wb)
-
     active_ws = wb[SHEET_SFR_2]
     sfr2_linechart(active_ws)
 
