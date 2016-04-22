@@ -18,7 +18,7 @@ import glob
 # limitations under the License.
 
 # increment this whenever we make important changes to this script
-VERSION = (0, 2)
+VERSION = (0, 3)
 
 
 # Maintainer <jim_lin@quantatw.com>
@@ -44,7 +44,7 @@ DIFFUSER_2_3000_POS = (DIFFUSER_1_5000_POS + DIFFUSER_1_5000_LEN)
 DIFFUSER_2_3000_LEN = 42
 CAMERA_STATION_1 = "Camera1"
 CAMERA_STATION_2 = "Camera2"
-MATCH_PATTEN = CAMERA_STATION_1 + "/*-black-0-/*"
+MATCH_PATTEN = CAMERA_STATION_1 + "/*-black-0-/"
 
 
 def excel_create():
