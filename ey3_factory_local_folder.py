@@ -46,7 +46,7 @@ def find_directoies_with_substring(ey):
 
 def mtf_dealwith(ws, ey_folder, ey_folder_idx):
     ws.cell(column=1, row=ey_folder_idx + ROW_OFFSET, value=ey_folder)
-    filefullpath = ey_folder + "/mtf/" + ey_folder + "-H-MTFOUT.txt"
+    filefullpath = ey_folder + "/mtf/" + "EY3_001-H-MTFOUT.txt"
     try:
         with open(filefullpath, "r") as f:
             for mtf_idx, line in enumerate(f, MTF_START_POS1):
@@ -57,7 +57,7 @@ def mtf_dealwith(ws, ey_folder, ey_folder_idx):
                         value=float(mtf))
     except IOError:
         pass
-    filefullpath = ey_folder + "/mtf/" + ey_folder + "-V-MTFOUT.txt"
+    filefullpath = ey_folder + "/mtf/" + "EY3_001-V-MTFOUT.txt"
     try:
         with open(filefullpath, "r") as f:
             for mtf_idx, line in enumerate(f, MTF_START_POS2):
